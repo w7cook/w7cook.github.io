@@ -1,0 +1,36 @@
+import Base
+import Simple
+
+-- 4
+t1 = Number 4
+-- -5 + 6
+t2 = Add (Number (-5)) (Number 6)
+-- 3 - -2 - -7
+t3 = Subtract (Subtract (Number 3) (Number (-2))) (Number (-7))
+-- 3 * (8 + 5)
+t4 = Multiply (Number 3) (Add (Number 8) (Number 5))
+-- 1 + 8 * 2
+t5 = Add (Number 1) (Multiply (Number 8) (Number 2))
+
+testDBZ = evaluate (Divide (Number 8) (Number 0))
+
+main'2 = do
+  putStrLn "Evaluating the following expression:"
+  putStr "  "
+  print t3
+  putStrLn "Produces the following result:"
+  putStr "  "
+  print (evaluate t3)
+
+main'3 = do
+  test "evaluate" evaluate t1
+  test "evaluate" evaluate t2
+  test "evaluate" evaluate t3
+  test "evaluate" evaluate t4
+  test "evaluate" evaluate t5
+
+main = do
+  tagged "Eval7" main'2
+  tagged "Form12"main'3
+
+  

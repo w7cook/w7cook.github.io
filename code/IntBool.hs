@@ -1,0 +1,55 @@
+module IntBool where
+import Prelude hiding (LT, GT, EQ, id)
+import Data.Maybe
+
+data Value = IntV  Int
+           | BoolV Bool
+ deriving (Eq, Show)
+
+data BinaryOp = Add | Sub | Mul | Div | And | Or
+              | GT | LT | LE | GE | EQ
+  deriving (Show, Eq)
+
+data UnaryOp = Neg | Not
+  deriving (Show, Eq)
+
+data Exp = Literal   Value
+         | Unary     UnaryOp Exp
+         | Binary    BinaryOp Exp Exp
+         | If        Exp Exp Exp
+         | Variable  String
+         | Let       String Exp Exp
+  deriving (Show, Eq)
+
+type Env = [(String, Value)]
+
+-- Evaluate an expression in an environment
+evaluate :: Exp -> Env -> Value
+evaluate (Literal v) env      = v
+evaluate (Unary op a) env     = unary op (evaluate a env)
+evaluate (Binary op a b) env  = binary op (evaluate a env) (evaluate b env)
+evaluate (Variable x) env     = fromJust (lookup x env)
+evaluate (Let x exp body) env = evaluate body newEnv
+  where newEnv = (x, evaluate exp env) : env
+evaluate (If a b c) env =
+  let BoolV test = evaluate a env in
+    if test then evaluate b env
+            else evaluate c env
+
+execute exp = evaluate exp []
+
+unary Not (BoolV b) = BoolV (not b)
+unary Neg (IntV i)  = IntV (-i)
+
+binary Add (IntV a)  (IntV b)  = IntV (a + b)
+binary Sub (IntV a)  (IntV b)  = IntV (a - b)
+binary Mul (IntV a)  (IntV b)  = IntV (a * b)
+binary Div (IntV a)  (IntV b)  = IntV (a `div` b)
+binary And (BoolV a) (BoolV b) = BoolV (a && b)
+binary Or  (BoolV a) (BoolV b) = BoolV (a || b)
+binary LT  (IntV a)  (IntV b)  = BoolV (a < b)
+binary LE  (IntV a)  (IntV b)  = BoolV (a <= b)
+binary GE  (IntV a)  (IntV b)  = BoolV (a >= b)
+binary GT  (IntV a)  (IntV b)  = BoolV (a > b)
+binary EQ  a         b         = BoolV (a == b)
+
